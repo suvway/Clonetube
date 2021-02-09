@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-//const { Video } = require("../models/Video");
+const { Video } = require("../models/Video");
 
 const { auth } = require("../middleware/auth");
 const multer = require('multer');
@@ -49,7 +49,52 @@ router.post('/uploadfiles', (req, res) => {
         return res.json({ success: true, url: res.req.file.path, fileName: res.req.file.filename }) //return을 줄때 json에 파일 정보 전달
     })
 
-}) 
+})
+
+router.post('/uploadVideo', (req, res) => {
+    //비디오 정보를 mongoDb에 저장한다.
+    const video = new Video(req.body)//Video Model을 위에서 import한 뒤에 req.body(Axios를 통해서 보낸 variables)를 넣어서 새로운 객체 생성한다.
+    
+    video.save((err, doc) => {
+        if(err) { return res.json({ success: false, err}) 
+        } else {
+            return res.status(200).json({ success: true })
+        }
+    })
+})
+
+
+
+router.get('/getVideos', (req, res) => {
+    //비디오를 DB에서 가져와서 클라이언트에 보낸다.
+    //find() 메소드를 이용해서 video collection 에 있는 모든 video를 가져온다. 
+    
+    Video.find()//populate을 이용해서 upload할 때 type에 objectId에 저장된 user에 정보를 불러 올 수 있다. 즉 참조하는 것이다.
+        .populate('writer')//populate하지 않으면 그냥 id만 가져오게된다.
+        .exec((err, videos) => {
+            if(err) {
+                return res.status(400).send(err)
+            } else {
+                res.status(200).json({ success: true, videos})
+            }
+        })
+
+})
+
+router.post('/getVideoDetail', (req, res) => {
+    
+    //populate을 통해 비디오에 있는 유저정보도 함께 보낸다. 
+    Video.findOne({"_id" : req.body.videoId})//post받은 body에 있는 id를 이용해서 id를 검색한다.
+    .populate('writer')
+    .exec((err, videoDetail) => {
+        if(err) {return res.status(400).send(err)
+        } else {
+            return res.status(200).json({ success: true, videoDetail})
+        }
+    })
+})
+
+
 
 router.post('/thumbnail', (req, res) => {
     
@@ -91,10 +136,6 @@ router.post('/thumbnail', (req, res) => {
         //'%b': input basename(filename with out extension)
         filename: 'thumbnail-%b.png'
     })
-
-
-    
-
 }) 
 
 
