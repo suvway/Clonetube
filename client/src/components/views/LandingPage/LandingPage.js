@@ -31,6 +31,7 @@ function LandingPage() {
         var seconds = Math.floor((video.duration - minutes * 60));
 
         return <Col lg={6} md={8} xs={24} key={index}>
+                    {/* 주소를 이렇게 적는 이유는 App.js에 router에 등록한 주소를 불러오는 거임. 밑에 thumnail은 서버 루트폴더에서 이미지 불러오기 때문에 주소가 저런것이다. */}
                     <a href={`/video/${video._id}`}>
                         <div style={{ position: 'relative' }}>
                             <img style={{ width: '100%' }} src={ `http://localhost:5000/${video.thumbnail}` } alt="thumbnail" />
