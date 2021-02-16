@@ -33,5 +33,28 @@ router.post("/subscribed", (req, res) => {
 
 
 });
+
+
+router.post("/unSubscribe", (req, res) =>{
+    Subscriber.findOneAndDelete({ userTo: req.body.userTo, userFrom: req.body.userFrom})
+    .exec((err, doc) => {
+        if(err) return res.status(400).json({ success: false, err})
+        res.status(200).json({ success: true, doc})
+    })
+});
+
+
+router.post("/Subscribe", (req, res) =>{
+
+
+    const subscribe = new Subscriber(req.body)
+
+    subscribe.save((err, doc) => {
+        if(err) return res.json({ success: false, err})
+        res.status(200).json({ success: true})
+    })
+
+});
+
 //export 까먹지말자 index.js 에서 router를 설정할 때 require를 통해서 가져오기 때문에 모듈을 export해줘야한다.
 module.exports = router;

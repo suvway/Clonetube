@@ -32,6 +32,39 @@ function Subscribe(props) {
             })
     }, [])
 
+    const onSubscribe = () => {
+
+        let subscribedVriable = {
+            userTo: props.userTo,
+            userFrom: props.userFrom,
+
+        }
+
+        //이미 구독중이라면
+        if(Subscribed){
+            Axios.post('/api/subscribe/unSubscribe', subscribedVriable)
+            .then(response => {
+                if(response.data.success){
+                    setSubscribeNumber(SubscribeNumber -1)
+                    setSubscribed(!Subscribed)
+                } else {
+                    alert('구독 취소하는데 실패했습니다.')
+                }
+            })
+        //구독중이 아니라면
+        } else {
+            Axios.post('/api/subscribe/Subscribe', subscribedVriable)
+            .then(response => {
+                if(response.data.success){
+                    setSubscribeNumber(SubscribeNumber +1)
+                    setSubscribed(!Subscribed)
+                } else {
+                    alert('구독하는데 실패했습니다.')
+                }
+
+            })
+        }
+    }
 
     return (
         <div>
@@ -40,7 +73,7 @@ function Subscribe(props) {
                     color: 'white', padding: '10px 16px',
                     fontWeight: '500', fontSize:'1rem', textTransform: 'uppercase'
                 }}
-                onClick
+                onClick={onSubscribe}
             >
                 {SubscribeNumber} {Subscribed ? 'Subscribed' : 'Subscribe'}
             </button>

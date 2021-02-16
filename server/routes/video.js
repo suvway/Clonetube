@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Video } = require("../models/Video");
-
+const { Subscriber } = require("../models/Subscriber")
 const { auth } = require("../middleware/auth");
 const multer = require('multer');
 var ffmpeg = require('fluent-ffmpeg');
@@ -81,6 +81,8 @@ router.get('/getVideos', (req, res) => {
 
 })
 
+
+
 router.post('/getVideoDetail', (req, res) => {
     
     //populate을 통해 비디오에 있는 유저정보도 함께 보낸다. 
@@ -137,6 +139,31 @@ router.post('/thumbnail', (req, res) => {
         filename: 'thumbnail-%b.png'
     })
 }) 
+
+router.post('/getSubscriptionVideos', (req, res) => {
+    //자신의 아이디를 가지고, 구독하는 사람들을 찾는다.
+    //Subscriber모델에서 검색한다.
+    Subscriber.find({ userFrom: req.body.userFrom })
+    .exec((err, subscriberInfo) => {
+        if(err) res.status(400).send(err);
+
+        let subscribedUser = [];
+        
+        subscriberInfo.map((subscriber, i) => {
+            subscribedUser.push(subscriber.userTo);
+        })
+        //찾은 사람들의 비디오를 가지고 온다.
+        //위에서 찾은 userTo를 가지고 있는 변수 subscribedUser는 배열 즉 여러개 일 수 있기 때문에 그냥 담아서 몽고디비에서 검색 할 수 없다.
+        //그래서 새로운 몽고디비 기능인 $in을 사용한다.
+        Video.find({ writer : {$in: subscribedUser}})
+            .populate('writer')
+            .exec((err, videos) => {
+                if(err) return res.status(400).send(err);
+                res.status(200).json({ success: true, videos})
+            })
+    })
+
+})
 
 
 module.exports = router;
