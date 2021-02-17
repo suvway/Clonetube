@@ -4,6 +4,7 @@ import Axios from 'axios'
 import SideVideo from './Section/SideVideo'
 import Subscribe from './Section/Subscribe'
 import Comment from './Section/Comment'
+import LikeDislikes from './Section/LikeDislikes'
 
 //밖에서 만든 SideVideo, Subscribe Component import
 
@@ -59,7 +60,7 @@ function VideoDetailPage(props) {
                     {/* actions를 받을 때 배열로 받기 때문에 subscribe component를 배열로 감싸서 받아야 보인다. */}
                     {/* props 방식으로 userTo를 넘겨준다. */}
                     <List.Item  
-                        actions={[ subscribeButton ]}
+                        actions={[ <LikeDislikes video userId={localStorage.getItem('userId')} videoId={videoId} />, subscribeButton ]}
                     >
                         <List.Item.Meta
                             avatar={<Avatar src={VideoDetail.writer.image} />}
